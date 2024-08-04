@@ -118,6 +118,7 @@
                             <input type="number" id="id_entrega" name="cantidad_entregada" class="form-control"
                                 required>
                         </div>
+                        <span id="mensaje"></span> <br>
 
                         <button id="guardar_entrega" class="btn btn-success" type="submit">Añadir</button>
                     </form>
@@ -147,10 +148,14 @@
             });
     }
     document.getElementById('guardar_entrega').addEventListener('click', (e) => {
+        e.preventDefault()
         const formulario = document.getElementById('form_entrega')
         axios.post('realizar_entrega', formulario)
             .then((result) => {
-                console.log(result);
+                if (result.data.data) {
+                    document.getElementById('mensaje').innerHTML = ""
+                    document.getElementById('mensaje').innerHTML = result.data.data
+                }
             })
             .catch((e) => {
                 alert(e)

@@ -25,7 +25,7 @@ def login_sistema(request):
                 login(request, user)
                 return redirect('index')
         else:
-            return render(request, '../usuarios/login.html', {'error_message': 'Credenciales inválidas'})
+            return render(request, 'usuarios/login.html', {'error_message': 'Credenciales inválidas'})
     else:
         return render(request, 'usuarios/login.html')
 

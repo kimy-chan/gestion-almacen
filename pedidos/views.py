@@ -11,7 +11,7 @@ from django.urls import reverse
 from datetime import datetime
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
-import os
+from datetime import datetime
 
 
 from .models import Pedido, Autorizacion_pedido
@@ -108,15 +108,29 @@ def realizar_entrega(request):
         id= request.POST['pedido_id']
         cantidad_entregada = request.POST['cantidad_entregada']
         pedido = get_object_or_404(Pedido,pk= id)
-        if int(cantidad_entregada) > pedido.cantidad_pedida:
-            return JsonResponse({'data':'Cantidad excedida'})
-        elif  cantidad_entregada==pedido.cantidad_pedida:
-            pedido.estado_pedido_almacen ='Completada'
+
+        cantidad_actual_pedido=int(pedido.cantidad_entrega )
+        total = cantidad_actual_pedido + int(cantidad_entregada)
+    
+        material_cantidad = pedido.material.stock
+       
+        if int(cantidad_entregada) == 0:
+             return JsonResponse({'data':'Cantidad minima es: 1'})
+        elif int(total) > pedido.cantidad_pedida:
+            return JsonResponse({'data':f'Cantidad maxima es:{pedido.cantidad_pedida - pedido.cantidad_entrega}'})
+        elif int( cantidad_entregada ) > material_cantidad:
+            return JsonResponse({'data':f'El material :{pedido.material.nombre} solo tiene : {material_cantidad}'   })
         elif int(cantidad_entregada) < pedido.cantidad_pedida:
             pedido.estado_pedido_almacen ='Incompleto'
-        pedido.cantidad_entrega = cantidad_entregada
+        pedido.cantidad_entrega = total
+        pedido.material.stock= material_cantidad - int(cantidad_entregada)
+        pedido.fecha_entrega_salida = datetime.now()
         pedido.save()
-        return JsonResponse({'data':'recivido'})
+        pedido.material.save()
+        if  pedido.cantidad_entrega == pedido.cantidad_pedida:
+            pedido.estado_pedido_almacen ='Completada'
+            pedido.save()
+        return JsonResponse({'data':'Enviado'})
 
 
 def mis_pedidos(request): #muestra los pedidos de cada unidad o secretaria
@@ -134,7 +148,6 @@ def mostrar_informacion_pedidio_aprobaciones(request,id_pedido):
         data=[]
         pedido = get_object_or_404(Pedido, pk=id_pedido)
         aprobaciones = Autorizacion_pedido.objects.filter(pedido= pedido.id)
-        print(aprobaciones)
         for aprobacion in aprobaciones:
             informacion ={
             'secretaria':aprobacion.usuario.unidad.nombre,
