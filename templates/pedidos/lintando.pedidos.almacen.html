@@ -19,11 +19,6 @@
                     <h5 class="card-title">Unidad:</h5>
                     <p class="card-text">{{ data.0.usuario.unidad}}</p>
 
-                    <!-- Enlaces para ver los pedidos aceptados y no aceptados -->
-                    <div class="mt-3">
-                        <a href="" class="btn btn-success">Ver Pedidos Aceptados</a>
-
-                    </div>
                 </div>
             </div>
         </div>
@@ -155,6 +150,9 @@
                 if (result.data.data) {
                     document.getElementById('mensaje').innerHTML = ""
                     document.getElementById('mensaje').innerHTML = result.data.data
+                } else if (result.data.error) {
+                    document.getElementById('mensaje').innerHTML = result.data.error
+
                 }
             })
             .catch((e) => {

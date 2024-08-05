@@ -180,5 +180,5 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-def crear_ruta_pedido(request):
-    return render(request,'usuarios/rutas.pedidos.html')
+def mi_perfil(request, id_usuario):
+    return render(request,'usuarios/mi_perfil.html')

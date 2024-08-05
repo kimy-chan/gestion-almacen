@@ -18,6 +18,7 @@
                 <th scope="col">unidad</th>
                 <th scope="col">oficina</th>
                 <th scope="col">Usuario</th>
+                <th scope="col">Cargo</th>
                 <th scope="col">Rol</th>
                 <th scope="col">Accion</th>
             </tr>
@@ -30,6 +31,12 @@
                 <td>{{cuentas.unidad.nombre}}</td>
                 <td>{{cuentas.oficina.nombre}}</td>
                 <td>{{cuentas.username}}</td>
+                {% if cuentas.encargado %}
+                <td>Encargado</td>
+                {% else %}
+                <td>Personal</td>
+                {% endif %}
+
                 <td>{{cuentas.rol}}</td>
 
 

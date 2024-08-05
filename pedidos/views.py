@@ -54,30 +54,45 @@ def buscador(request):
     }
     return  render(request, 'pedidos/index.html', context)
 
+def listar_info_material(request,id_material):
+  
+    material =  get_object_or_404(Materiales, pk=id_material)
+    data={
+        'id':material.id,
+        'codigo':material.codigo,
+        'nombre':material.nombre
+    }   
+    return JsonResponse({"data":data})
+#------------------------------
 
-def realizar_pedido(request, id_material):
+def realizar_pedido(request):
     id_usuario= request.user.id
     if request.method =='POST':
-        formulario=  Formualrio_pedido(request.POST)
-        if formulario.is_valid():
+       try:
+            print(request.POST)
+            id_material=request.POST["id_material"]
+            descripcion = request.POST["descripcion"]
+            unidad_manejo=request.POST["unidad_manejo"]
+            cantidad_pedido =request.POST["cantidad_pedido"]
+            if not id_material or not descripcion or not unidad_manejo or not cantidad_pedido:
+                 return JsonResponse({"error":"Los campos son obligatorios"})
             usuario = get_object_or_404(Usuario, id=id_usuario)
             material = get_object_or_404(Materiales, id=id_material)
-            pedido = formulario.save(commit=False)
-            pedido.usuario=usuario
-            pedido.material= material
+            pedido= Pedido.objects.create(descripcion=descripcion ,
+                                          unidad_manejo=unidad_manejo,
+                                          cantidad_pedida=cantidad_pedido,
+                                          usuario=usuario,
+                                          material=material)
             pedido.save()
-            return HttpResponse('pedido realizado')
-            
-        else:
-            formulario=  Formualrio_pedido(request.POST)
-    else:
-        formulario=  Formualrio_pedido()
-    context={
-        'material':get_object_or_404(Materiales,pk=id_material),
-        'forms': formulario
-    }
-    return render(request , 'pedidos/realizar_pedido.html', context)
+            return JsonResponse({"data":"Pedido Realizado"})
+       except Exception as e:
+           print("ERROR", e)
+           return JsonResponse({"error":"Ocurrio un error al realiza el pedido"})
+           
 
+     
+
+#------------------------------
 def listar_pedidos(request):
     listando_pedidos = Pedido.objects.filter(aprobado_unidad=True).distinct('usuario')
     context={
@@ -107,6 +122,8 @@ def realizar_entrega(request):
     if request.method == 'POST':
         id= request.POST['pedido_id']
         cantidad_entregada = request.POST['cantidad_entregada']
+        if not cantidad_entregada:
+            return JsonResponse({'error':'Campo obligatorio'})
         pedido = get_object_or_404(Pedido,pk= id)
 
         cantidad_actual_pedido=int(pedido.cantidad_entrega )
@@ -114,7 +131,7 @@ def realizar_entrega(request):
     
         material_cantidad = pedido.material.stock
        
-        if int(cantidad_entregada) == 0:
+        if int(cantidad_entregada) < 1:
              return JsonResponse({'data':'Cantidad minima es: 1'})
         elif int(total) > pedido.cantidad_pedida:
             return JsonResponse({'data':f'Cantidad maxima es:{pedido.cantidad_pedida - pedido.cantidad_entrega}'})
