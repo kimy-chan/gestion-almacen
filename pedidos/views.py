@@ -167,10 +167,10 @@ def mostrar_informacion_pedidio_aprobaciones(request,id_pedido):
         aprobaciones = Autorizacion_pedido.objects.filter(pedido= pedido.id)
         for aprobacion in aprobaciones:
             informacion ={
-            'secretaria':aprobacion.usuario.unidad.nombre,
+            'unidad':aprobacion.usuario.unidad.nombre,
             'aprobacion':aprobacion.estado_autorizacion,
             'nombre':aprobacion.usuario.persona.nombre + " " + aprobacion.usuario.persona.apellidos ,
-            'area':aprobacion.usuario.unidad.nombre,
+            'oficina':aprobacion.usuario.oficina.nombre,
             'fecha': aprobacion.fecha_de_autorizacion.strftime('%Y-%m-%d') if aprobacion.fecha_de_autorizacion else None
             }
             data.append(informacion)

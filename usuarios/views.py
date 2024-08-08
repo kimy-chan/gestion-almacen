@@ -182,3 +182,19 @@ def logout_view(request):
 
 def mi_perfil(request, id_usuario):
     return render(request,'usuarios/mi_perfil.html')
+def buscar_cuenta(request, email):
+    if not email:
+        return  JsonResponse({'mensaje':'Ingrese su email'})
+    
+    cuentas = Usuario.objects.filter(email = email)
+    cuentasEncontradas=[]
+    for cuenta in cuentas:
+        data={
+            'id':cuenta.id,
+            'nombres': cuenta.persona.nombre + cuenta.persona.nombre,
+            'username':cuenta.username
+        }
+        cuentasEncontradas.append(data)
+    if len(cuentasEncontradas) == 0:
+         return  JsonResponse({'mensaje':'Cuenta no encontra'})
+    return  JsonResponse({'data':cuentasEncontradas})
